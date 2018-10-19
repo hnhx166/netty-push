@@ -68,6 +68,15 @@ public class SnBoxChannelCache {
 	}
 	
 	/**
+	 * 获取channel
+	 * @param key
+	 * @return
+	 */
+	public static String getKey(Channel channel) {
+		return snBoxChannelsMap.get(channel);
+	}
+	
+	/**
 	 * 获取所有channel
 	 * @return
 	 */

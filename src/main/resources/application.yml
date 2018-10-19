@@ -1,7 +1,7 @@
-#server: 
-#  port: 7080
-#  tomcat: 
-#    maxThreads: 1000
+server: 
+  port: 7080
+  tomcat: 
+    maxThreads: 2000
   
 spring: 
   datasource: #数据源配置
@@ -22,7 +22,7 @@ spring:
     password: tong
     publisher-confirms: true
     virtual-host: /
-    queues: queue
+    queues: queue_netty
   redis: #### redis 配置
     database: 0 #Redis数据库索引（默认为0）
     host: 192.168.0.28 # Redis服务器地址

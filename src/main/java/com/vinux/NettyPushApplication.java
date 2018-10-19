@@ -3,6 +3,7 @@ package com.vinux;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.vinux.push.cache.SnBoxChannelCache;
 import com.vinux.push.entity.Message;
 import com.vinux.push.enu.MessageType;
 import com.vinux.push.server.PushServer;
@@ -31,14 +33,25 @@ public class NettyPushApplication {
 	PushServer pushServer;
 	
 	@RequestMapping("push")
-	public void push(String msg, String uid, String recId) {
+	public void push(String msg) {//, String uid, String recId
 		Message message = new Message();
         message.setMsgType(MessageType.MSG_BOX_PUSH.getValue());
-//        PushMsg pushMsg = new PushMsg();
-//        pushMsg.setTitle("server:" + msg);
-//        message.setMsg(pushMsg);
-//        getMacAddrByIp("192.168.0.205");
-		pushServer.push(msg);
+        message.setAppId("Server");
+//        message.setReceiveId(recId);
+        message.setUid("uid000");
+        message.setVersion(1);
+        message.setMsg(msg);
+		pushServer.push(message);
+	}
+	
+	@RequestMapping("channelCount")
+	public int channelCount(String msg) {//, String uid, String recId
+		return SnBoxChannelCache.getChannels().size();
+	}
+	
+	@RequestMapping("channels")
+	public Collection channels(String msg) {//, String uid, String recId
+		return SnBoxChannelCache.getChannels();
 	}
 	
 	private String getMacAddrByIp(String ip) {
@@ -79,7 +92,6 @@ public class NettyPushApplication {
 	public ModelAndView mac() {
 		return new ModelAndView("/mac");
 	}
-	
 	
 	
 	

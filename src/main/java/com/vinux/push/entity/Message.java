@@ -2,8 +2,6 @@ package com.vinux.push.entity;
 
 import java.io.Serializable;
 
-import com.vinux.push.enu.ReceiveType;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,7 +21,7 @@ public class Message implements Serializable {
 //    private String deviceId;
  
     //版本
-    private int version = Config.SERVER_VERSION;
+    private int version;
  
     //消息发送人ID
     private String uid;
@@ -45,7 +43,7 @@ public class Message implements Serializable {
     private String groupId;
     
     //接收类型(默认:用户消息)
-    private byte receiveType = ReceiveType.TYPE_USER.getValue();
+    private byte receiveType;
  
     //消息内容
     private String msg;
