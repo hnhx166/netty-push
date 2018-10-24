@@ -3,7 +3,7 @@ package com.vinux.push.entity;
 public interface Config {
 
 	int SERVER_VERSION = 1; // 版本号
-	String SERVER_HOST = "192.168.0.125"; // 服务器IP
+	String SERVER_HOST = "192.168.0.86"; // 服务器IP
 	int SERVER_PORT = 8000; // 服务器端口
 	int SERVER_ID = 0; // 表示服务器消息
 	byte APP_IM = 1; // 即时通信应用ID为1

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.vinux.mq.Producer;
 import com.vinux.push.cache.SnBoxChannelCache;
 import com.vinux.push.entity.Message;
+import com.vinux.push.enu.MQ_CHANNEL;
 import com.vinux.push.enu.MessageType;
 import com.vinux.push.handler.ConnectHandler;
 import com.vinux.push.handler.ExceptionHandler;
@@ -39,6 +42,8 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 @Order(value = 1)
 public class PushServer implements CommandLineRunner {
 
+	private static final Logger logger = LoggerFactory.getLogger(PushServer.class);
+	
 	public void bind() throws Exception {
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workGroup = new NioEventLoopGroup();
@@ -94,7 +99,9 @@ public class PushServer implements CommandLineRunner {
 			jData.put("receiveType", message.getReceiveType());
 			jData.put("uid", message.getUid());
 			jData.put("version", message.getVersion());
-			jData.put("sendTime", System.currentTimeMillis());
+			jData.put("sendTime", message.getSendTime());
+			jData.put("serverSendTime", System.currentTimeMillis());
+			
 			String receId = SnBoxChannelCache.getKey(ctx.channel());
 			jData.put("receiveId", receId);
 			System.out.println("#########服务器发送消息，接收者ID:" + receId);
@@ -166,12 +173,9 @@ public class PushServer implements CommandLineRunner {
 	private void saveMessage(JSONObject message) {
 		// MqPublicInfo.processMsg(message, queueName);
 		try {
-			Producer.pushMessage(message);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
+			Producer.pushMessage(message, MQ_CHANNEL.CHANNEL_SAVE);
+		} catch (Exception e) {
+			logger.info("保存消息出错：" + message.toJSONString());
 			e.printStackTrace();
 		}
 	}

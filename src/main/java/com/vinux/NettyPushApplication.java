@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,6 +42,7 @@ public class NettyPushApplication {
         message.setUid("uid000");
         message.setVersion(1);
         message.setMsg(msg);
+        message.setSendTime(new Date(System.currentTimeMillis()));
 		pushServer.push(message);
 	}
 	

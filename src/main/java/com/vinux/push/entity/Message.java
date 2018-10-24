@@ -1,6 +1,7 @@
 package com.vinux.push.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,5 +48,8 @@ public class Message implements Serializable {
  
     //消息内容
     private String msg;
+    
+    //消息内容
+    private Date sendTime;
  
 }
