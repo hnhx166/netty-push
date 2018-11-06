@@ -97,7 +97,7 @@ public class MessageUtils {
 		pushData.put("sendTime", message.getSendTime());
 		pushData.put("serverSendTime", serverSendTime);
 		pushData.put("receiveTime", receiveTime);
-		pushData.put("sendTime", status);
+		pushData.put("status", status);
 		
 		try {
 			logger.info("开始推送消息：" + pushData.toJSONString());

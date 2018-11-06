@@ -12,6 +12,7 @@ import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.vinux.push.enu.MQ_CHANNEL;
+import com.vinux.web.controller.PushMessageToSnBoxController;
 
 public class MessageCustomer {
 
@@ -47,6 +48,7 @@ public class MessageCustomer {
                     throws IOException {
             	JSONObject message = (JSONObject)JSONObject.parse(new String(body, "UTF-8"));
                 System.out.println("Customer Received '" + message + "'");
+                PushMessageToSnBoxController.pushToBox(message);
             }
         };
         //自动回复队列应答 -- RabbitMQ中的消息确认机制
