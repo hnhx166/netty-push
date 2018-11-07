@@ -2,7 +2,7 @@ package com.vinux.push.handler;
 
 import java.net.InetSocketAddress;
 
-import com.vinux.push.cache.SnBoxChannelCache;
+import com.vinux.push.cache.ChatChannelCache;
 import com.vinux.push.entity.Message;
 import com.vinux.push.enu.MessageType;
 
@@ -44,7 +44,7 @@ public class ConnectHandler extends SimpleChannelInboundHandler<Message>{
         ctx.close();
         ctx.fireExceptionCaught(cause);
         //通道断开移除当前连接
-        SnBoxChannelCache.removeChannel(ctx.channel());
+        ChatChannelCache.removeChannel(ctx.channel());
     }
 
     private Message buildMessage(byte result){

@@ -54,6 +54,15 @@ public class ChatChannelCache {
 	public static ChannelHandlerContext getChannel(String key) {
 		return chatChannels.get(key);
 	}
+	
+	/**
+	 * 获取channel
+	 * @param key
+	 * @return
+	 */
+	public static String getKey(Channel channel) {
+		return chatChannelsMap.get(channel);
+	}
 
 	/**
 	 * 获取所有channel

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.vinux.push.cache.SnBoxChannelCache;
+import com.vinux.push.cache.ChatChannelCache;
 import com.vinux.push.entity.Message;
 import com.vinux.push.enu.MessageType;
 import com.vinux.push.server.PushServer;
@@ -48,12 +48,12 @@ public class NettyPushApplication {
 	
 	@RequestMapping("channelCount")
 	public int channelCount(String msg) {//, String uid, String recId
-		return SnBoxChannelCache.getChannels().size();
+		return ChatChannelCache.getChannels().size();
 	}
 	
 	@RequestMapping("channels")
 	public Collection channels(String msg) {//, String uid, String recId
-		return SnBoxChannelCache.getChannels();
+		return ChatChannelCache.getChannels();
 	}
 	
 	private String getMacAddrByIp(String ip) {

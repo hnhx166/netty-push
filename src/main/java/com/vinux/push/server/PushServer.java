@@ -1,8 +1,6 @@
 package com.vinux.push.server;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +10,14 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.vinux.mq.Producer;
-import com.vinux.push.cache.SnBoxChannelCache;
+import com.vinux.push.cache.ChatChannelCache;
 import com.vinux.push.entity.Message;
 import com.vinux.push.enu.MQ_CHANNEL;
 import com.vinux.push.enu.MessageType;
 import com.vinux.push.handler.ConnectHandler;
 import com.vinux.push.handler.ExceptionHandler;
 import com.vinux.push.handler.HeartBeatHandler;
+import com.vinux.push.handler.OutHandler;
 import com.vinux.push.handler.PushHandler;
 import com.vinux.push.handler.UserInfoHandler;
 
@@ -41,34 +40,40 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 @Component
 @Order(value = 1)
 public class PushServer implements CommandLineRunner {
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(PushServer.class);
 	
 	public void bind() throws Exception {
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workGroup = new NioEventLoopGroup();
 		ServerBootstrap bs = new ServerBootstrap();
-		bs.group(bossGroup, workGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 1000)
-				.option(ChannelOption.SO_KEEPALIVE, true).childHandler(new ChannelInitializer<SocketChannel>() {
-					@Override
-					protected void initChannel(SocketChannel channel) throws Exception {
-						ChannelPipeline p = channel.pipeline();
-						p.addLast(new ObjectEncoder());
-						p.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)));
-						// 心跳超时
-						p.addLast(new ReadTimeoutHandler(100));
-						p.addLast(new ConnectHandler());
-						p.addLast(new HeartBeatHandler());
-						p.addLast(new UserInfoHandler());
-						// 数据处理
-						p.addLast(new PushHandler());
-						// 异常处理
-						p.addLast(new ExceptionHandler());
-
-					}
-				});
-		bs.bind(8000).sync();
-		System.out.println("server 8000 start....");
+		try {
+			bs.group(bossGroup, workGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 1000)
+					.option(ChannelOption.SO_KEEPALIVE, true).childHandler(new ChannelInitializer<SocketChannel>() {
+						@Override
+						protected void initChannel(SocketChannel channel) throws Exception {
+							ChannelPipeline p = channel.pipeline();
+							p.addLast(new ObjectEncoder());
+							p.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(Message.class.getClassLoader())));
+							// 心跳超时
+							p.addLast(new ReadTimeoutHandler(100));
+							p.addLast(new ConnectHandler());
+							p.addLast(new HeartBeatHandler());
+							p.addLast(new UserInfoHandler());
+							// 数据处理
+							p.addLast(new PushHandler());
+							// 异常处理
+							p.addLast(new ExceptionHandler());
+							p.addFirst(new OutHandler());
+	
+						}
+					});
+			bs.bind(8000).sync();
+			System.out.println("server 8000 start....");
+		}catch(Exception e) {
+			bossGroup.shutdownGracefully().sync();
+			workGroup.shutdownGracefully().sync();
+		}
 	}
 
 	// 狻猊宝盒消息推送
@@ -88,7 +93,7 @@ public class PushServer implements CommandLineRunner {
 
 		
 
-		Collection<ChannelHandlerContext> channels = SnBoxChannelCache.getChannels();
+		Collection<ChannelHandlerContext> channels = ChatChannelCache.getChannels();
 		for (ChannelHandlerContext ctx : channels) {
 			JSONObject jData = new JSONObject();
 			jData.put("appId", message.getAppId());
@@ -102,7 +107,7 @@ public class PushServer implements CommandLineRunner {
 			jData.put("sendTime", message.getSendTime());
 			jData.put("serverSendTime", System.currentTimeMillis());
 			
-			String receId = SnBoxChannelCache.getKey(ctx.channel());
+			String receId = ChatChannelCache.getKey(ctx.channel());
 			jData.put("receiveId", receId);
 			System.out.println("#########服务器发送消息，接收者ID:" + receId);
 			if (receId != null) {
@@ -139,7 +144,7 @@ public class PushServer implements CommandLineRunner {
 		// Integer groupId = message.getGroupId();
 		//
 		// }
-		Collection<ChannelHandlerContext> channels = SnBoxChannelCache.getChannels();
+		Collection<ChannelHandlerContext> channels = ChatChannelCache.getChannels();
 		for (ChannelHandlerContext ctx : channels) {
 			ctx.writeAndFlush(message);
 		}
@@ -158,7 +163,7 @@ public class PushServer implements CommandLineRunner {
 		// Integer groupId = message.getGroupId();
 		//
 		// }
-		Collection<ChannelHandlerContext> channels = SnBoxChannelCache.getChannels();
+		Collection<ChannelHandlerContext> channels = ChatChannelCache.getChannels();
 		for (ChannelHandlerContext ctx : channels) {
 			ctx.writeAndFlush(message);
 		}

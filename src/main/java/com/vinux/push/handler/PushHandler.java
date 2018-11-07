@@ -7,14 +7,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSONObject;
 import com.vinux.push.cache.ChatChannelCache;
-import com.vinux.push.cache.SnBoxChannelCache;
 import com.vinux.push.constants.Contant_Prefix;
 import com.vinux.push.entity.Message;
 import com.vinux.push.enu.MessageType;
 import com.vinux.push.utils.MessageUtils;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -46,12 +45,12 @@ public class PushHandler extends SimpleChannelInboundHandler<Message> {
 			if (message.getMsgType() == MessageType.MSG_BOX_PUSH.getValue()) {
 				// 发送人
 				String sendId = message.getUid();
-				if (null == SnBoxChannelCache.getChannel(sendId)) {
-					SnBoxChannelCache.putChannel(sendId, ctx);
+				if (null == ChatChannelCache.getChannel(sendId)) {
+					ChatChannelCache.putChannel(sendId, ctx);
 				}
 				// 接收人
 				String receiveId = message.getReceiveId();
-				if (null == SnBoxChannelCache.getChannel(receiveId)) {// 不在线
+				if (null == ChatChannelCache.getChannel(receiveId)) {// 不在线
 //					jData.put("status", 300);
 					MessageUtils.saveMessage(message, sendTime, null, "300");
 					// ChannelCache.channels.put(receiveId, ctx);
@@ -59,7 +58,7 @@ public class PushHandler extends SimpleChannelInboundHandler<Message> {
 					message.setMsg("对方不在线");
 					ctx.writeAndFlush(message);
 				} else {
-					ChannelHandlerContext cc = SnBoxChannelCache.getChannel(receiveId);
+					ChannelHandlerContext cc = ChatChannelCache.getChannel(receiveId);
 					cc.writeAndFlush(message).addListener(new ChannelFutureListener() {
 
 						@Override

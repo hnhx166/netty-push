@@ -3,7 +3,7 @@ package com.vinux.web.controller;
 import java.util.Date;
 
 import com.alibaba.fastjson.JSONObject;
-import com.vinux.push.cache.SnBoxChannelCache;
+import com.vinux.push.cache.ChatChannelCache;
 import com.vinux.push.constants.Contant_Prefix;
 import com.vinux.push.entity.Config;
 import com.vinux.push.entity.Message;
@@ -39,12 +39,12 @@ public class PushMessageToSnBoxController {
 		boxMessage.setVersion(Config.SERVER_VERSION);
 		Date serverSendTime = new Date(System.currentTimeMillis());
 		
-		ChannelHandlerContext ctx = SnBoxChannelCache.getChannel(receiveId);
+		ChannelHandlerContext ctx = ChatChannelCache.getChannel(receiveId);
 		if(ctx != null) {
 			
 			if(ctx.isRemoved()) {
 				ctx.close();
-				SnBoxChannelCache.removeChannel(receiveId);
+				ChatChannelCache.removeChannel(receiveId);
 				MessageUtils.cacheMessage(receiveId, boxMessage, Contant_Prefix.PREFX_MESSAGE_SN_BOX);
 				MessageUtils.saveMessage(boxMessage, serverSendTime, null, "300");
 				return;
@@ -62,7 +62,7 @@ public class PushMessageToSnBoxController {
 				}
 			});
 		}else {
-			SnBoxChannelCache.removeChannel(receiveId);
+			ChatChannelCache.removeChannel(receiveId);
 			MessageUtils.cacheMessage(receiveId, boxMessage, Contant_Prefix.PREFX_MESSAGE_SN_BOX);
 			MessageUtils.saveMessage(boxMessage, serverSendTime, null, "300");
 		}

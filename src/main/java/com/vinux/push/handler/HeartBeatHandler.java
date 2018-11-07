@@ -1,9 +1,6 @@
 package com.vinux.push.handler;
 
-import java.util.Collection;
-import java.util.Iterator;
-
-import com.vinux.push.cache.SnBoxChannelCache;
+import com.vinux.push.cache.ChatChannelCache;
 import com.vinux.push.entity.Message;
 import com.vinux.push.enu.MessageType;
 
@@ -20,7 +17,7 @@ public class HeartBeatHandler extends SimpleChannelInboundHandler<Message>{
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message message) throws Exception {
-        //如果是心跳包ping，则返回pong
+    	//如果是心跳包ping，则返回pong
         if(message != null && message.getMsgType() == MessageType.HEARTBEAT_REQ.getValue()){
             Message response = buildMessage(MessageType.HEARTBEAT_RESP.getValue());
             ctx.writeAndFlush(response);
@@ -34,7 +31,7 @@ public class HeartBeatHandler extends SimpleChannelInboundHandler<Message>{
         ctx.close();
         ctx.fireExceptionCaught(cause);
         //通道断开移除channel
-        SnBoxChannelCache.removeChannel(ctx.channel());
+        ChatChannelCache.removeChannel(ctx.channel());
     }
 
     private Message buildMessage(byte result){
